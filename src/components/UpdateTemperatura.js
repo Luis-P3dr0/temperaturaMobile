@@ -1,95 +1,84 @@
-import react, { useState } from "react";
-
-import adafruit from "../services/api";
+import { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import adafruit from "../services/api";
 
-const UpdateTemperatura = ({ onVoltar }) => {
-  const [valor, setValor] = useState("");
-  const [enviando, setEnviando] = useState(false);
-  const [mensagem, setMensagem] = useState(null);
+const UpdateTemperatura = ({ setTela }) => {
+    const [valor, setValor] = useState("");
+    const [mensagem, setMensagem] = useState(null);
 
-  const enviar = async () => {
-    const numerico = parseFloat(valor.replace(",", "."));
+    const enviarTemperatura = async () => {
+        const temperatura = parseFloat(valor.replace(",", "."));
+        if (isNaN(temperatura)) {
+            setMensagem("Digite um valor numérico válido");
+            return;
+        }
 
-    if (isNaN(numerico)) {
-      setMensagem("Digite um valor de temperatura válido.");
-      return;
-    }
+        try {
+            await adafruit.enviarTemperatura(temperatura);
+            setMensagem("Temperatura enviada com sucesso!");
+            setValor("");
+        } catch (error) {
+            console.log("Erro ao enviar temperatura", error);
+            setMensagem("Não foi possível enviar a temperatura");
+        }
+    };
 
-    try {
-      setEnviando(true);
-      await adafruit.enviarTemperatura(numerico);
-      setMensagem("Temperatura publicada com sucesso!");
-      setValor("");
-    } catch (error) {
-      console.log("erro ao publicar temperatura", error);
-      setMensagem("Falha na conexão. Não foi possível publicar a temperatura.");
-    } finally {
-      setEnviando(false);
-    }
-  };
+    return (
+        <View style={styles.container}>
+            <Text style={styles.titulo}>Atualizar Temperatura</Text>
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>Atualizar Temperatura</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Digite a nova temperatura"
+                keyboardType="numeric"
+                value={valor}
+                onChangeText={setValor}
+            />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Digite a nova temperatura"
-        keyboardType="numeric"
-        value={valor}
-        onChangeText={setValor}
-      />
+            <View style={styles.botoes}>
+                <Button title="Enviar" onPress={enviarTemperatura} />
+                <Button title="Voltar" onPress={() => setTela("home")} />
+            </View>
 
-      {mensagem && <Text style={styles.mensagem}>{mensagem}</Text>}
-
-      <View style={styles.botaoArea}>
-        <Button
-          title={enviando ? "Enviando..." : "Enviar"}
-          onPress={enviar}
-          disabled={enviando}
-          color="#2ecc71"
-        />
-        <Button title="Voltar" onPress={onVoltar} color="#e74c3c" />
-      </View>
-    </View>
-  );
+            {mensagem && <Text style={styles.mensagem}>{mensagem}</Text>}
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fbfbfb",
-    paddingHorizontal: 30,
-  },
-  titulo: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  input: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 18,
-    marginBottom: 20,
-    backgroundColor: "#fff",
-  },
-  mensagem: {
-    fontSize: 14,
-    color: "#555",
-    marginBottom: 15,
-  },
-  botaoArea: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
+    container: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#f5f5f5",
+    },
+    titulo: {
+        fontSize: 22,
+        fontWeight: "bold",
+        marginBottom: 20,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: "#aaa",
+        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        fontSize: 18,
+        width: 220,
+        textAlign: "center",
+        backgroundColor: "#fff",
+        color: "#333",
+        marginBottom: 20,
+    },
+    botoes: {
+        flexDirection: "row",
+        gap: 12,
+    },
+    mensagem: {
+        marginTop: 20,
+        fontSize: 16,
+        color: "#2ecc71",
+    },
 });
 
 export default UpdateTemperatura;

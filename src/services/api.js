@@ -14,6 +14,7 @@ const api = axios.create({
 
 const adafruit = {
     getUltimaTemperatura: () => api.get(`${FEED_NAME}/data/last`),
+    getHistorico: () => api.get(`${FEED_NAME}/data?limit=500`),
     enviarTemperatura: (valor) => api.post(`${FEED_NAME}/data`, { value: String(valor) })
 }
 

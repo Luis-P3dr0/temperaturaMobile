@@ -1,26 +1,25 @@
-import { useState } from "react";
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { useState } from 'react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import HomeScreen from './src/screens/HomeScreen';
-import UpdateTemperatura from './src/components/UpdateTemperatura';
+import UpdateTemp from './src/components/UpdateTemperatura';
 
 export default function App() {
-  const [tela, setTela] = useState("home");
+  const [tela, setTela] = useState('home');
+  const [historico, setHistorico] = useState([]);
 
   return (
     <View style={styles.container}>
-      {tela === "home" ? (
-        <>
-          <HomeScreen />
-          <Pressable
-            style={styles.botaoNavegar}
-            onPress={() => setTela("update")}
-          >
-            <Text style={styles.botaoTexto}>Atualizar Temperatura</Text>
-          </Pressable>
-        </>
+      {tela === 'home' ? (
+        <HomeScreen historico={historico} setHistorico={setHistorico} />
       ) : (
-        <UpdateTemperatura onVoltar={() => setTela("home")} />
+        <UpdateTemp setTela={setTela} setHistorico={setHistorico} />
       )}
+      <Pressable
+        style={({ pressed }) => [styles.botao, pressed && styles.botaoPress]}
+        onPress={() => setTela('update')}
+      >
+        <Text style={styles.botaoTexto}>Atualizar Temperatura</Text>
+      </Pressable>
     </View>
   );
 }
@@ -28,19 +27,22 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fbfbfb',
   },
-  botaoNavegar: {
-    backgroundColor: "#2ecc71",
-    paddingVertical: 15,
-    alignItems: "center",
-    marginHorizontal: 20,
-    marginBottom: 30,
+  botao: {
+    position: 'absolute',
+    bottom: 40,
+    alignSelf: 'center',
+    backgroundColor: '#3498db',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
     borderRadius: 8,
   },
+  botaoPress: {
+    backgroundColor: '#2980b9',
+  },
   botaoTexto: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });
